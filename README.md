@@ -1,7 +1,7 @@
 # PatchWaveNet
 # The overall of strucure PatchWaveNet
 markdown
- ![overall structure](./pic/PatchWaveNet.pdf)
+ ![overall structure](./pic/PatchWaveNet.png)
 # Getting started
 1. Install requirements. pip install -r requirements.txt.
 2. Download data. You can download all the datasets from [Goole Drive](https://drive.google.com/drive/folders/1JSZByfM0Ghat3g_D3a-puTZ2JsfebNWL) or [Baidu Drive](https://pan.baidu.com/s/11AWXg1Z6UwjHzmto4hesAA?pwd=9qjr). Create a seperate folder ./dataset and put all the csv files in the directory.
