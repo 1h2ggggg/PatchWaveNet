@@ -1,5 +1,6 @@
 # PatchWaveNet
 # The overall of strucure PatchWaveNet
+markdown
  ![overall structure](./pic/PatchWaveNet.pdf)
 # Getting started
 1. Install requirements. pip install -r requirements.txt.
