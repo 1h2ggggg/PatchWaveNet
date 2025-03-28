@@ -147,8 +147,8 @@ class Exp_Main(Exp_Basic):
         # if not os.path.exists(heatmap_dir):
         #     os.makedirs(heatmap_dir)
 
-        # train_losses = []  # 记录训练损失
-        # test_losses = []  # 记录测试损失
+        # train_losses = []  
+        # test_losses = []  
         # vali_losses = []
 
         time_now = time.time()
@@ -258,8 +258,8 @@ class Exp_Main(Exp_Basic):
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
-            # train_losses.append(train_loss)  # 记录训练损失
-            # test_losses.append(test_loss)  # 记录测试损失
+            # train_losses.append(train_loss)  
+            # test_losses.append(test_loss)  
             # vali_losses.append(vali_loss)
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
@@ -284,7 +284,6 @@ class Exp_Main(Exp_Basic):
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
-        # 绘制损失曲线
         # plt.figure(figsize=(8, 6))
         # plt.plot(range(1, len(train_losses) + 1), train_losses, label="Train Loss",marker='o')
         # plt.plot(range(1, len(test_losses) + 1), test_losses, label="Test Loss",marker='s')
@@ -294,7 +293,7 @@ class Exp_Main(Exp_Basic):
         # plt.ylabel("Loss", fontsize=20)
         # plt.legend()
         # plt.grid()
-        # plt.savefig(os.path.join(path1, "loss_curve.pdf"))  # 保存损失曲线
+        # plt.savefig(os.path.join(path1, "loss_curve.pdf")) 
         # plt.show()
 
         return self.model
@@ -370,12 +369,12 @@ class Exp_Main(Exp_Basic):
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
-        # preds = np.array(preds)  # 形状: [num_batches, batch_size, pred_len, D_model]
+        # preds = np.array(preds)  # [num_batches, batch_size, pred_len, D_model]
         # trues = np.array(trues)
         # preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])  # [total_samples, pred_len, D_model]
         # trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         # print(preds.shape)
-        # target_variable = -1  # 选择第 0 个变量
+        # target_variable = -1  
         # pred_series = preds[:, :1, target_variable].flatten()
         # true_series = trues[:, :1, target_variable].flatten()
         # print('pred', pred_series.shape)
