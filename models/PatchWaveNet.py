@@ -44,7 +44,6 @@ class WaveletTransform1D(nn.Module):
             self.block.append(
                 ScaleGraphBlock2(configs, self.d_model // (2**i))
             )
-        # 初始化小波滤波器
         if wavelet == 'haar':
             self.low_pass_filter = torch.tensor([0.707, 0.707], dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(0)
             self.high_pass_filter = torch.tensor([-0.707, 0.707], dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(0)
@@ -65,7 +64,7 @@ class WaveletTransform1D(nn.Module):
                                                  dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(0)
         else:
             raise NotImplementedError("Only 'haar', 'db2', 'db3', and 'db4' wavelets are implemented for this example.")
-            # 根据输入通道数调整滤波器大小
+            
         self.low_pass_filter = self.low_pass_filter.expand(self.patch_num, 1, self.low_pass_filter.size(-1))
         self.high_pass_filter = self.high_pass_filter.expand(self.patch_num, 1, self.high_pass_filter.size(-1))
 
@@ -75,73 +74,39 @@ class WaveletTransform1D(nn.Module):
         return restruct
 
     def dwt_step(self, x):
-        """
-        单级小波分解
-        :param x: 输入信号，形状 [B, C, T]
-        :return: 低频和高频分量
-        """
         low_pass = F.conv1d(x, self.low_pass_filter, stride=2, groups=x.size(1), padding=(self.low_pass_filter.size(-1) - 1) // 2)
         high_pass = F.conv1d(x, self.high_pass_filter, stride=2, groups=x.size(1), padding=(self.high_pass_filter.size(-1) - 1) // 2)
         return low_pass, high_pass
 
     def idwt_step(self, low_pass, high_pass):
-        """
-        单级小波重构
-        :param low_pass: 低频分量
-        :param high_pass: 高频分量
-        :return: 重构的信号
-        """
         low_reconstructed = F.conv_transpose1d(low_pass, self.low_pass_filter, stride=2, groups=low_pass.size(1), padding=(self.low_pass_filter.size(-1) - 1) // 2)
         high_reconstructed = F.conv_transpose1d(high_pass, self.high_pass_filter, stride=2, groups=high_pass.size(1), padding=(self.high_pass_filter.size(-1) - 1) // 2)
         return low_reconstructed + high_reconstructed
 
     def multi_level_decompose(self, x, level):
-        """
-        多级小波分解
-        :param x: 输入信号，形状 [B, C, T]
-        :param level: 分解层数
-        :return: 各级分解的低频和高频分量
-        """
         coefficients = []
         current_signal = x
         for i in range(level):
             low_pass, high_pass = self.dwt_step(current_signal)
-            coefficients.append((low_pass, high_pass))  # 保存每级低频和高频分量
-            current_signal = low_pass  # 继续分解低频分量
+            coefficients.append((low_pass, high_pass))  
+            current_signal = low_pass  
         return coefficients
 
     def multi_level_reconstruct(self, coefficients):
-        """
-        多级小波重构
-        :param coefficients: 各级分解的低频和高频分量
-        :return: 每一级别的重构信号列表和最终重构信号
-        """
-        # reconstructed_levels = []  # 保存每一级重构信号
-        # low_freq_info = []  # 保存每一级低频信息
-        # high_freq_info = []  # 保存每一级高频信息
         i = 2
         current_signal = None
 
-        # 从最高层开始逐级重构
         for low_pass, high_pass in reversed(coefficients):
 
             if current_signal is None:
                 low_pass = self.block[i](low_pass)
                 high_pass = self.block[i](high_pass)
-                # 初始重构
                 current_signal = self.idwt_step(low_pass, high_pass)
             else:
                 current_signal = self.block[i](current_signal)
                 high_pass = self.block[i](high_pass)
-                # 在每一级的基础上加入高频分量进行重构
                 current_signal = self.idwt_step(current_signal, high_pass)
             i = i-1
-            # # 保存当前级别的重构信号
-            # reconstructed_levels.append(current_signal)
-            # low_freq_info.append(low_pass)  # 保存低频信息
-            # high_freq_info.append(high_pass)  # 保存高频信息
-
-        # 返回重构信号列表、低频和高频信息
         return current_signal
 
 
